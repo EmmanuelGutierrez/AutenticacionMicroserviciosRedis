@@ -4,6 +4,11 @@ const config= require('../config');
 const user= require('./components/user/routes');
 
 const app = express();
+
+//Middlewares
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+
 //Route
 app.use('/api/user',user);
 
