@@ -76,7 +76,12 @@ class responseModel {
 
   send(res, status = this.status, message = this.message, cause = this.cause) {
     this.print()
-    let data=cause?{message,cause}:{message};
+    const data={
+      status,
+      error:this.error,
+      message
+    }
+    if(cause){ data.cause=cause};
     return res.status(status).json(data)
   }
 };
