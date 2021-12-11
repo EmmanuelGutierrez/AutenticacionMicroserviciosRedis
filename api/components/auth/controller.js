@@ -1,6 +1,6 @@
 const auth = require('../../../auth');
 const bcrypt = require('bcrypt');
-const responseModel = require('../../../network/response');
+const err = require('../../../utils/error');
 const TABLA = 'auth'
 module.exports = function (store = require('../../../store/dummy')) {
 
@@ -20,15 +20,17 @@ module.exports = function (store = require('../../../store/dummy')) {
   async function login(username, password) {
     const data = await store.query(TABLA, { username: username });
 
-    if(!data){
-      return null;
+    if (!data) {
+      throw new err("Datos erroneos",400,"Bad request");
     }
+    console.log(data)
     const correctPass = await bcrypt.compare(password, data.password);
     if (!correctPass) {
-      return null;
+      throw new err("Datos erroneos",400,"Bad request");
+    } else {
+
+      return auth.sign({id:data.id, username:data.username});
     }
-    delete data.password;
-    return auth.sign(data);
 
   }
 

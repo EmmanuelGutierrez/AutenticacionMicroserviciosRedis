@@ -64,18 +64,19 @@ class responseModel {
     return this;
   }
 
-  print() {
+  print(status,cause,message) {
     if (ENV === "dev" && this.error) {
       console.log(`
-          👹 Error: ${this.status}
-          👹 Cause: ${this.cause}
-          👹 Message: ${this.message}`);
+          👹 Error: ${status}
+          👹 Cause: ${cause}
+          👹 Message: ${message}`);
     }
     return this
   }
 
-  send(res, status = this.status, message = this.message, cause = this.cause) {
-    this.print()
+  send(req,res, status = this.status, message = this.message, cause = this.cause) {
+    
+    this.print(status,cause,message)
     const data={
       status,
       error:this.error,

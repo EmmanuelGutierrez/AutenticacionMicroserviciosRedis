@@ -1,5 +1,6 @@
 const express = require('express');
 const yup = require('yup');
+const secure = require('./secure');
 const responseModel = require('../../../network/response');
 const Validator = require('../../../utils/validator');
 const Controller = require('./index');
@@ -15,28 +16,29 @@ const userSchema = yup.object().shape({
 
 
 
-async function getAll(req, res) {
+async function getAll(req, res,next) {
 
   try {
-    
+    a+b
     const data = await Controller.list();
     return new responseModel().send(res, 200, data);
+
   } catch (error) {
-    return new responseModel().newInternalServerError(error.message).send(res);
+    next(error);
   }
 }
 
-async function getOne(req, res) {
+async function getOne(req, res,next) {
 
   try {
     const data = await Controller.get(req.params.id);
     return new responseModel().send(res, 200, data);
   } catch (error) {
-    return new responseModel().newInternalServerError(error.message).send(res);
+    next(error);
   }
 }
 
-async function post(req, res) {
+async function insert(req, res,next) {
 
   try {
     const data = req.body;
@@ -46,23 +48,36 @@ async function post(req, res) {
     Controller.upsert(data)
     return new responseModel().send(res, 201, "Usuario creado");
   } catch (error) {
-    return new responseModel().newInternalServerError(error.message).send(res);
+    next(error);
   }
 }
 
-async function deleteOne(req, res) {
+async function update(req, res,next) {
+
+  try {
+    const data = req.body;
+
+    Controller.upsert(data)
+    return new responseModel().send(req,res, 201, "Usuario modificado");
+  } catch (error) {
+    return new responseModel().newInternalServerError(error.message).send(req,res);
+  }
+}
+
+async function deleteOne(req, res,next) {
   Controller.delete(req.params.id)
     .then(() => {
-      new responseModel().send(res, 200, "Usuario borrado");
+      new responseModel().send(req,res, 200, "Usuario borrado");
     })
     .catch((err) => {
-      new responseModel().newInternalServerError(err.message).send(res);
+      new responseModel().newInternalServerError(err.message).send(req,res);
     });
 }
 
 router.get('/', getAll);
 router.get('/:id', getOne);
-router.post('/add', post);
+router.post('/add', insert);
+router.put('/mod',secure('update'), update);
 router.delete('/delete/:id', deleteOne);
 
 
