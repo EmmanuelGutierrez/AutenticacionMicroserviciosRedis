@@ -19,9 +19,8 @@ const userSchema = yup.object().shape({
 async function getAll(req, res,next) {
 
   try {
-    a+b
     const data = await Controller.list();
-    return new responseModel().send(res, 200, data);
+    return new responseModel().send(req,res, 200, data);
 
   } catch (error) {
     next(error);
@@ -38,15 +37,15 @@ async function getOne(req, res,next) {
   }
 }
 
-async function insert(req, res,next) {
+async function insert(req,res,next) {
 
   try {
     const data = req.body;
     const request = await Validator(data,userSchema);
-    if (request.err) return new responseModel().newBadRequest(request.data).send(res);
+    if (request.err) return new responseModel().newBadRequest(request.data).send(req,res);
 
     Controller.upsert(data)
-    return new responseModel().send(res, 201, "Usuario creado");
+    return new responseModel().send(req,res, 201, "Usuario creado");
   } catch (error) {
     next(error);
   }

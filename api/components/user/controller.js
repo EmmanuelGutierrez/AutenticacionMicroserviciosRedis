@@ -2,7 +2,7 @@
 const {nanoid}= require('nanoid');
 const bcrypt = require('bcrypt')
 const auth=require('../auth');
-const TABLA = 'user';
+const TABLA = "users";
 
 
 

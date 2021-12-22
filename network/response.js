@@ -75,7 +75,6 @@ class responseModel {
   }
 
   send(req,res, status = this.status, message = this.message, cause = this.cause) {
-    
     this.print(status,cause,message)
     const data={
       status,
