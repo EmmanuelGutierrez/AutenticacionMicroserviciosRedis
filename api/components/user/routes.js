@@ -7,13 +7,17 @@ const Controller = require('./index');
 
 const router = express.Router();
 
-const userSchema = yup.object().shape({
+const userInsertSchema = yup.object().shape({
     id: yup.string(),
-    name: yup.string().required("Ingrese un nombre"),
+    name: yup.string(),
     username: yup.string().required("Ingrese un username"),
     password: yup.string().required("Ingrese una contraseña")
 });
 
+const userUpdateSchema = yup.object().shape({
+    name: yup.string(),
+    username: yup.string(),
+});
 
 
 async function getAll(req, res, next) {
@@ -31,6 +35,24 @@ async function getOne(req, res, next) {
 
     try {
         const data = await Controller.get(req.params.id);
+        return new responseModel().send(req, res, 200, data);
+    } catch (error) {
+        next(error);
+    }
+}
+
+async function follow(req, res, next) {
+    try {
+        const data = await Controller.follow(req.user.id, req.params.id);
+        return new responseModel().send(req, res, 201, data);
+    } catch (error) {
+        next(error);
+    }
+}
+
+async function followers(req, res, next) {
+    try {
+        const data = await Controller.followers(req.params.id);
         return new responseModel().send(req, res, 200, data);
     } catch (error) {
         next(error);
@@ -67,7 +89,12 @@ async function upsert(req, res, next) {
 
     try {
         const data = req.body;
-        const request = await Validator(data, userSchema);
+        let request;
+        if (req.method === 'POST') {
+            request = await Validator(data, userInsertSchema);
+        } else {
+            request = await Validator(data, userUpdateSchema);
+        }
         if (request.err) return new responseModel().newBadRequest(request.data).send(req, res);
 
         const result = await Controller.upsert(data)
@@ -88,7 +115,9 @@ async function deleteOne(req, res, next) {
 }
 
 router.get('/', getAll);
-router.get('/:id', getOne);
+router.get('/getOne/:id', getOne);
+router.post('/follow/:id', secure('follow'), follow);
+router.get('/followers/:id', followers);
 router.post('/upsert', upsert);
 router.put('/upsert', secure('update'), upsert);
 router.delete('/delete/:id', deleteOne);

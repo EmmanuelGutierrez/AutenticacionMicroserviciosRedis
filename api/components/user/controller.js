@@ -14,6 +14,18 @@ module.exports = function(store = require('../../../store/dummy')) {
         get: (id) => {
             return store.get(TABLA, id);
         },
+        follow: (from, to) => {
+            return store.upsert('users_followers', {
+                user_from: from,
+                user_to: to
+            })
+        },
+        followers: (user_from) => {
+            const join = {};
+            join[TABLA] = 'user_to';
+            const query = { user_from };
+            return store.query('users_followers', query, join)
+        },
         upsert: async(data) => {
             const user = {
                 name: data.name,

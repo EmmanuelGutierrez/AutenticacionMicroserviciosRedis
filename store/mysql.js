@@ -1,11 +1,14 @@
 const mysql = require('mysql');
 const config = require('../config');
 
+const debug = config.ENV === 'dev' ? ['ComQueryPacket', 'RowDataPacket'] : false;
+
 const dbconf = {
     host: config.mysql.host,
     user: config.mysql.user,
     password: config.mysql.password,
     database: config.mysql.database,
+    debug
 };
 //let con = mysql.createConnection(dbconf);
 
@@ -100,10 +103,16 @@ async function update(table, data) {
     })
 }
 
-function query(table, q) {
+function query(table, q, join) {
     const con = mysql.createConnection(dbconf);
+    let joinQuery = '';
+    if (join) {
+        const key = Object.keys(join)[0];
+        const val = join[key]; // De esta forma puedo recuperar el prime valor del objeto de join, sin importar su nombre
+        joinQuery = `JOIN ${key} ON ${table}.${val} = ${key}.id`;
+    }
     return new Promise((resolve, reject) => {
-        con.query(`SELECT * FROM ${table} where ? `, q, (err, res) => {
+        con.query(`SELECT * FROM ${table} ${joinQuery} where ? `, q, (err, res) => {
             con.end();
             if (err) {
                 return reject(err);
@@ -114,7 +123,10 @@ function query(table, q) {
 }
 
 async function upsert(table, data) {
-    const user = await get(table, data.id);
+    let user;
+    if (data.id) {
+        user = await get(table, data.id);
+    }
     if (user) {
         return update(table, data);
     }
