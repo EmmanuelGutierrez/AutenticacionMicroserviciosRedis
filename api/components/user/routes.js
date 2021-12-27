@@ -21,10 +21,9 @@ const userUpdateSchema = yup.object().shape({
 
 
 async function getAll(req, res, next) {
-
     try {
         const data = await Controller.list();
-        return new responseModel().send(req, res, 200, data);
+        return new responseModel().send(req, res, 200, data.message);
 
     } catch (error) {
         next(error);
@@ -32,9 +31,9 @@ async function getAll(req, res, next) {
 }
 
 async function getOne(req, res, next) {
-
     try {
         const data = await Controller.get(req.params.id);
+
         return new responseModel().send(req, res, 200, data);
     } catch (error) {
         next(error);
@@ -44,7 +43,7 @@ async function getOne(req, res, next) {
 async function follow(req, res, next) {
     try {
         const data = await Controller.follow(req.user.id, req.params.id);
-        return new responseModel().send(req, res, 201, data);
+        return new responseModel().send(req, res, 201, data.message);
     } catch (error) {
         next(error);
     }
@@ -59,33 +58,7 @@ async function followers(req, res, next) {
     }
 }
 
-/* async function insert(req, res, next) {
-
-    try {
-        const data = req.body;
-        const request = await Validator(data, userSchema);
-        if (request.err) return new responseModel().newBadRequest(request.data).send(req, res);
-
-        Controller.upsert(data)
-        return new responseModel().send(req, res, 201, "Usuario creado");
-    } catch (error) {
-        next(error);
-    }
-}
-
-async function update(req, res, next) {
-
-    try {
-        const data = req.body;
-
-        Controller.upsert(data)
-        return new responseModel().send(req, res, 201, "Usuario modificado");
-    } catch (error) {
-        return new responseModel().newInternalServerError(error.message).send(req, res);
-    }
-} */
-
-async function upsert(req, res, next) {
+/* async function upsert(req, res, next) {
 
     try {
         const data = req.body;
@@ -102,7 +75,38 @@ async function upsert(req, res, next) {
     } catch (error) {
         next(error);
     }
+} */
+
+async function insert(req, res, next) {
+
+    try {
+        const data = req.body;
+        const request = await Validator(data, userInsertSchema);
+
+        if (request.err) return new responseModel().newBadRequest(request.data).send(req, res);
+
+        const result = await Controller.insert(data)
+        return new responseModel().send(req, res, 201, result);
+    } catch (error) {
+        next(error);
+    }
 }
+
+async function update(req, res, next) {
+
+    try {
+        const data = req.body;
+        const request = await Validator(data, userUpdateSchema);
+
+        if (request.err) return new responseModel().newBadRequest(request.data).send(req, res);
+
+        const result = await Controller.update(data)
+        return new responseModel().send(req, res, 201, result);
+    } catch (error) {
+        next(error);
+    }
+}
+
 
 async function deleteOne(req, res, next) {
     Controller.delete(req.params.id)
@@ -118,8 +122,8 @@ router.get('/', getAll);
 router.get('/getOne/:id', getOne);
 router.post('/follow/:id', secure('follow'), follow);
 router.get('/followers/:id', followers);
-router.post('/upsert', upsert);
-router.put('/upsert', secure('update'), upsert);
+router.post('/add', insert);
+router.put('/mod', secure('update'), update);
 router.delete('/delete/:id', deleteOne);
 
 

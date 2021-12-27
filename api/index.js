@@ -26,6 +26,7 @@ app.use('/api/user', user);
 app.use('/api/post', post);
 app.use('/api-docs/user', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
+//middleware
 app.use(errors);
 
 app.listen(config.api.port, () => {
