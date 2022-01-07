@@ -4,10 +4,21 @@ const bcrypt = require("bcryptjs");
 const auth = require("../auth");
 const TABLA = "users";
 
-module.exports = function (store = require("../../../store/dummy")) {
+module.exports = function (
+  store = require("../../../store/dummy"),
+  cache = require("../../../store/dummy")
+) {
   return {
-    list: () => {
-      return store.list(TABLA);
+    list: async () => {
+      let users = await cache.list(TABLA);
+      if (!users) {
+        users = await store.list(TABLA);
+        cache.upsert(TABLA, users);
+        console.log("no estaba en cache.buscando en db");
+      } else {
+        console.log("Traemos de cache");
+      }
+      return users;
     },
     get: (id) => {
       return store.get(TABLA, id);

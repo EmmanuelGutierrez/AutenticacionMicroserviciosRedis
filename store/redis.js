@@ -21,13 +21,25 @@ async function list(table) {
   }
 }
 
-function get(table, id) {}
+async function get(table, id) {
+  try {
+    const allData = await list(table);
+    let one = [];
+    console.log(allData);
+    if (allData) {
+      one = allData.filter((d) => d.id == id);
+    }
+    return one[0];
+  } catch (error) {
+    return error;
+  }
+}
 
 async function upsert(table, data) {
   let key = table;
-  if (data && data.id) {
+  /* if (data && data.id) {
     key = key + "_" + data.id;
-  }
+  } */
   await client.setEx(key, 10, JSON.stringify(data));
   return true;
 }

@@ -13,6 +13,7 @@ async function list(req, res, next) {
 
 async function get(req, res, next) {
   const data = await Store.get(req.params.table, req.params.id);
+  console.log(data);
   return new responseModel().send(req, res, 200, data);
 }
 
