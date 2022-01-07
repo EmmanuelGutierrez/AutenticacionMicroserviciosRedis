@@ -4,7 +4,6 @@ const swaggerUi = require('swagger-ui-express');
 const cors = require('cors');
 
 const user = require('./components/user/routes');
-const post = require('./components/post/routes');
 const auth = require('./components/auth/routes');
 
 const swaggerDoc = require('./components/user/schema.json');
@@ -23,7 +22,6 @@ app.use(cors({
 //Route
 app.use('/api/auth', auth);
 app.use('/api/user', user);
-app.use('/api/post', post);
 app.use('/api-docs/user', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
 //middleware

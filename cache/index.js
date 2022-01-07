@@ -9,9 +9,9 @@ app.use(express.json());
 
 app.use("/", router);
 
-app.listen(config.mysqlService.port, () => {
+app.listen(config.cacheService.port, () => {
   console.log(
-    "Servicio de mysql escuchando en puerto: ",
-    config.mysqlService.port
+    "Servicio de cache escuchando en puerto: ",
+    config.cacheService.port
   );
 });
